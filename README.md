@@ -33,8 +33,8 @@ You can specify a custom ag name and path in your .vimrc like so:
 
     :Ag [options] {pattern} [{directory}]
 
-Search recursively in {directory} (will prompt to input when no provided,   
-or guest the project root as the director where it equals '!') for the {pattern}.  
+Search recursively in {directory} (will prompt to input when no provided),  
+'!' will expand to project path, for the {pattern}.  
 
 Files containing the search term will be listed in the split window, along with
 the line number of the occurrence, once for each occurrence.  [Enter] on a line

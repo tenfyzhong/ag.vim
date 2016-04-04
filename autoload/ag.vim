@@ -116,17 +116,22 @@ function! ag#Ag(cmd, args)
     let l:path = ""
     let l:cwd = getcwd()
     if l:args_path_type == 2
-      let l:grepargs = <SID>removeArgsLastItem(l:grepargs)
-      let l:path = s:guessProjectRoot()
+      let l:root = s:guessProjectRoot()
+      let l:path = substitute(l:grepargs, '.*\s\s*!\(\S*\)$', l:root.'\1', '')
+      let l:grepargs = substitute(l:grepargs, '\(.*\)\s\s*!\S*$', '\1', '')
     elseif l:args_path_type == 1
       let l:path = ""
     else
       let l:path = input("Path: ", l:cwd, "dir")
       exec "normal <cr>"
     endif
-    if !isdirectory(l:path)
-      echohl ErrorMsg | echom l:path . " is not a valid path" | echohl None
-      return
+    if !empty(l:path)
+      let l:path = substitute(l:path, '\/\{2,}', '/', 'g')
+      if !empty(l:path) && !isdirectory(l:path)
+          echohl ErrorMsg | echom l:path . " is not a valid path" | echohl None
+          return
+      endif
+      let l:path = fnamemodify(l:path, ':~:.')
     endif
     silent! execute a:cmd . " " . escape(l:grepargs, '|') . " " . l:path
   finally
@@ -256,7 +261,7 @@ function! s:argsContainsPath(args)
   " else it must be a path
   if l:last_item[0] ==# '-'
     return 0
-  elseif l:last_item ==# '!'
+  elseif l:last_item[0] ==# '!'
     return 2
   else
     return 1
@@ -264,8 +269,3 @@ function! s:argsContainsPath(args)
 endfunction
 " }}}
 
-function! s:removeArgsLastItem(args) " {{{
-  let l:items = split(a:args)[:-2]
-  return join(l:items, ' ')
-endfunction
-" }}}

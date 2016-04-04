@@ -9,8 +9,8 @@ the results in a split window.
 
 :Ag[!] [options] {pattern} [{directory}]                                  *:Ag*
 
-    Search recursively in {directory} (will prompt to input when no provided,
-    or guest the project root as the directory where it euqals '!') for the 
+    Search recursively in {directory} (will prompt to input when no provided,),
+    '!' will expand to project path,  for the 
     {pattern}. Behaves just like the |:grep| command, but
     will open the |Quickfix| window for you. If [!] is not given the first
     error is jumped to.
