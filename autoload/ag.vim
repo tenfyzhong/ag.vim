@@ -122,6 +122,11 @@ function! ag#Ag(cmd, args)
       let l:path = ""
     else
       let l:path = input("Path: ", l:cwd, "dir")
+      exec "normal <cr>"
+    endif
+    if !isdirectory(l:path)
+      echohl ErrorMsg | echom l:path . " is not a valid path" | echohl None
+      return
     endif
     silent! execute a:cmd . " " . escape(l:grepargs, '|') . " " . l:path
   finally
