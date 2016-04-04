@@ -112,20 +112,18 @@ function! ag#Ag(cmd, args)
     let &grepformat=g:ag_format
     set t_ti=
     set t_te=
-    if g:ag_working_path_mode ==? 'r' " Try to find the projectroot for current buffer
-      let l:cwd_back = getcwd()
-      let l:cwd = s:guessProjectRoot()
-      try
-        exe "lcd ".l:cwd
-      catch
-        echom 'Failed to change directory to:'.l:cwd
-      finally
-        silent! execute a:cmd . " " . escape(l:grepargs, '|')
-        exe "lcd ".l:cwd_back
-      endtry
-    else " Someone chose an undefined value or 'c' so we revert to the default
-      silent! execute a:cmd . " " . escape(l:grepargs, '|')
+    let l:args_path_type = <SID>argsContainsPath(l:grepargs)
+    let l:path = ""
+    let l:cwd = getcwd()
+    if l:args_path_type == 2
+      let l:grepargs = <SID>removeArgsLastItem(l:grepargs)
+      let l:path = s:guessProjectRoot()
+    elseif l:args_path_type == 1
+      let l:path = ""
+    else
+      let l:path = input("Path: ", l:cwd, "dir")
     endif
+    silent! execute a:cmd . " " . escape(l:grepargs, '|') . " " . l:path
   finally
     let &grepprg=l:grepprg_bak
     let &grepformat=l:grepformat_bak
@@ -232,3 +230,37 @@ function! s:guessProjectRoot()
   " Nothing found, fallback to current working dir
   return getcwd()
 endfunction
+
+" {{{ s:argsContainsPath
+" if args last item is '!' will return 2, use root path
+" if args contains path, return 1
+function! s:argsContainsPath(args) 
+  " if args is empty, it must be not contains path
+  if empty(a:args)
+    return 0
+  endif
+
+  let l:items = split(a:args)
+  " if args length is 1, the args must be the pattern
+  if len(l:items) == 1
+    return 0
+  endif
+
+  let l:last_item = l:items[-1]
+  " if the last item is begin with '-', it must be an option
+  " else it must be a path
+  if l:last_item[0] ==# '-'
+    return 0
+  elseif l:last_item ==# '!'
+    return 2
+  else
+    return 1
+  endif
+endfunction
+" }}}
+
+function! s:removeArgsLastItem(args) " {{{
+  let l:items = split(a:args)[:-2]
+  return join(l:items, ' ')
+endfunction
+" }}}
