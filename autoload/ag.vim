@@ -60,7 +60,7 @@ if !exists("g:ag_working_path_mode")
     let g:ag_working_path_mode = 'c'
 endif
 
-function! ag#AgBuffer(cmd, args)
+function! ag#AgBuffer(cmd, bang, args)
   let l:bufs = filter(range(1, bufnr('$')), 'buflisted(v:val)')
   let l:files = []
   for buf in l:bufs
@@ -69,10 +69,10 @@ function! ag#AgBuffer(cmd, args)
       call add(l:files, l:file)
     endif
   endfor
-  call ag#Ag(a:cmd, a:args . ' ' . join(l:files, ' '))
+  call ag#Ag(a:cmd, a:bang, a:args . ' ' . join(l:files, ' '))
 endfunction
 
-function! ag#Ag(cmd, args)
+function! ag#Ag(cmd, bang, args)
   let l:ag_executable = get(split(g:ag_prg, " "), 0)
 
   " Ensure that `ag` is installed
@@ -133,7 +133,13 @@ function! ag#Ag(cmd, args)
       endif
       let l:path = fnamemodify(l:path, ':~:.')
     endif
-    silent! execute a:cmd . " " . escape(l:grepargs, '|') . " " . l:path
+    let l:bang = ""
+    if a:bang == ""
+        let l:bang = "!"
+    else
+        let l:bang = ""
+    endif
+    silent! execute a:cmd . l:bang . " " . escape(l:grepargs, '|') . " " . l:path
   finally
     let &grepprg=l:grepprg_bak
     let &grepformat=l:grepformat_bak
@@ -200,27 +206,28 @@ function! ag#Ag(cmd, args)
   endif
 endfunction
 
-function! ag#AgFromSearch(cmd, args)
+function! ag#AgFromSearch(cmd, bang, args)
   let search =  getreg('/')
   " translate vim regular expression to perl regular expression.
   let search = substitute(search,'\(\\<\|\\>\)','\\b','g')
-  call ag#Ag(a:cmd, '"' .  search .'" '. a:args)
+  call ag#Ag(a:cmd, a:bang, '"' .  search .'" '. a:args)
 endfunction
 
 function! ag#GetDocLocations()
   let dp = ''
   for p in split(&runtimepath,',')
-    let p = p.'doc/'
+    let p = p.'/doc/'
     if isdirectory(p)
-      let dp = p.'*.txt '.dp
+      let dp = p.' '.dp
     endif
   endfor
+  echom "dp:". dp
   return dp
 endfunction
 
-function! ag#AgHelp(cmd,args)
+function! ag#AgHelp(cmd, bang, args)
   let args = a:args.' '.ag#GetDocLocations()
-  call ag#Ag(a:cmd,args)
+  call ag#Ag(a:cmd, a:bang, args)
 endfunction
 
 function! s:guessProjectRoot()

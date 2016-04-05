@@ -12,14 +12,14 @@ the results in a split window.
     Search recursively in {directory} (will prompt to input when no provided,),
     '!' will expand to project path,  for the 
     {pattern}. Behaves just like the |:grep| command, but
-    will open the |Quickfix| window for you. If [!] is not given the first
-    error is jumped to.
+    will open the |Quickfix| window for you. If [!] is given, the first 
+    result will jumped to.
 
 :AgBuffer[!] [options] {pattern} [{directory}]                     *:AgBuffer*
 
     Search for {pattern} in all open buffers. Behaves just like the |:grep|
-    command, but will open the |Quickfix| window for you. If [!] is not given
-    the first error is jumped to.
+    command, but will open the |Quickfix| window for you. If [!] is given,
+    the first result will jumped to.
 
     Note: this will not find changes in modified buffers, since ag can only
     find what is on disk! You can save buffers automatically when searching
