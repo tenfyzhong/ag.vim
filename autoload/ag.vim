@@ -124,6 +124,10 @@ function! ag#Ag(cmd, bang, args)
     else
       let l:path = input("Path: ", l:cwd, "dir")
       exec "normal <cr>"
+      if l:path =~# "^!"
+        let l:root = s:guessProjectRoot()
+        let l:path = substitute(l:path, '^!\(\S*\)$', l:root.'\1', '')
+      endif
     endif
     if !empty(l:path)
       let l:path = substitute(l:path, '\/\{2,}', '/', 'g')
