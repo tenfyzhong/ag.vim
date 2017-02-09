@@ -158,10 +158,12 @@ function! ag#Ag(cmd, bang, args)
   endif
 
   if a:cmd =~# '^l' && l:match_count
+    lclose
     exe g:ag_lhandler
     let l:apply_mappings = g:ag_apply_lmappings
     let l:matches_window_prefix = 'l' " we're using the location list
   elseif l:match_count
+    cclose
     exe g:ag_qhandler
     let l:apply_mappings = g:ag_apply_qmappings
     let l:matches_window_prefix = 'c' " we're using the quickfix window
